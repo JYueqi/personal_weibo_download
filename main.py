@@ -2,7 +2,7 @@
 Author: JYQ
 Description: 微博数据 爬取
 Date: 2022-04-21 14:52:46
-LastEditTime: 2022-04-28 17:21:30
+LastEditTime: 2022-04-28 19:39:54
 FilePath: \weibo_data\main.py
 '''
 
@@ -45,7 +45,7 @@ def _get_path(item_id):
     return path
 
 def _get_img_path(item_id,year,month):
-    path=os.join(config.download_root,year,month,item_id)
+    path=os.path.join(config.download_root,year,month,item_id)
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
@@ -152,12 +152,26 @@ def _get_one_weibo(weibo_id,headers,blog,path):
     return {*}
     '''        
     print('start capture content of weibo id:' + weibo_id)
-    weibo_info=blog.next_element.contents[16].contents
-    content=blog.next_element.contents[0].contents[0]
-    day=weibo_info[0].split(' ')[0]
-    time=weibo_info[0].split(' ')[1][:5]
-    if '月' in day:
-        day="2022-"+day[:2]+"-"+day[3:5]
+    try:
+        weibo_info=blog.next_element.contents[16].contents
+        content=blog.next_element.contents[0].contents[0]
+        day=weibo_info[0].split(' ')[0]
+        time=weibo_info[0].split(' ')[1][:5]
+        if '月' in day:
+            day="2022-"+day[:2]+"-"+day[3:5]
+    except Exception as e:
+        weibo_origin=blog.text
+        content=weibo_origin.split(' ')[0]
+        l=weibo_origin.split(' ')
+        if '月' in l[1]:
+            day="2022-"+str(l[-2][-6:-4])+"-"+str(l[-2][-3:-1])
+            time=str(l[-1][:5])
+        else:
+            day=str(l[-2][-10:])
+            time=str(l[-1][:5])
+    
+    
+    
     year=day[:4]
     month=day[5:7]
     print("day:"+day)
@@ -172,7 +186,7 @@ def _weibo_writer(weibo_df):
     param {*}
     return {*}
     '''    
-    weibo_df.to_csv(config.weibo_data_path)
+    weibo_df.to_csv(config.weibo_data_path,index=0)
     print("weibo data writing : done")
 
 
@@ -192,8 +206,6 @@ def _get_blogs(uid,headers,path):
     while num_pages < 97:
         url = 'https://weibo.cn/%s/profile?filter=%s&page=%d' % (uid, filter_mode, num_pages)
         html=_get_html(url,headers)
-
-        
 
         soup=BeautifulSoup(html,'html.parser')
         blogs = soup.body.find_all(attrs={'id':re.compile(r'^M_')}, recursive=False)
