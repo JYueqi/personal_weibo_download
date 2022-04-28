@@ -2,7 +2,7 @@
 Author: JYQ
 Description: 微博数据 爬取
 Date: 2022-04-21 14:52:46
-LastEditTime: 2022-04-27 14:46:41
+LastEditTime: 2022-04-28 15:06:57
 FilePath: \weibo_data\main.py
 '''
 
@@ -150,9 +150,11 @@ def _get_one_weibo(weibo_id,headers,blog,path):
     time=weibo_info[0].split(' ')[1][:5]
     if '月' in day:
         day="2022-"+day[:2]+"-"+day[3:5]
+    month=day[5:7]
     print("day:"+day)
     print("time:"+time)
     print("content:"+content)
+    return month,day,time,content
 
 
 def _get_blogs(uid,headers,path):
@@ -176,8 +178,9 @@ def _get_blogs(uid,headers,path):
         num_blogs += len(blogs)
            
         for blog in blogs:
-            _get_one_weibo(blog.attrs.get('id'),headers,blog,path)
+            month,day,time,content=_get_one_weibo(blog.attrs.get('id'),headers,blog,path)
             _get_one_images(blog.attrs.get('id'),headers,blog,path)
+
 
 if __name__=='__main__':
     uid=config.uid
