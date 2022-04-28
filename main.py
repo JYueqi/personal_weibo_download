@@ -2,7 +2,7 @@
 Author: JYQ
 Description: 微博数据 爬取
 Date: 2022-04-21 14:52:46
-LastEditTime: 2022-04-28 15:06:57
+LastEditTime: 2022-04-28 17:21:30
 FilePath: \weibo_data\main.py
 '''
 
@@ -12,6 +12,7 @@ import os
 import urllib
 import urllib.request
 import re
+import pandas as pd
 from bs4 import BeautifulSoup
 
 
@@ -42,6 +43,13 @@ def _get_path(item_id):
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
+
+def _get_img_path(item_id,year,month):
+    path=os.join(config.download_root,year,month,item_id)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
+
 
 def _capture_images(uid,headers, path):
     filter_mode = 1      # 0-all 1-original 2-pictures
@@ -150,36 +158,58 @@ def _get_one_weibo(weibo_id,headers,blog,path):
     time=weibo_info[0].split(' ')[1][:5]
     if '月' in day:
         day="2022-"+day[:2]+"-"+day[3:5]
+    year=day[:4]
     month=day[5:7]
     print("day:"+day)
     print("time:"+time)
     print("content:"+content)
-    return month,day,time,content
+    return year,month,day,time,content
+
+def _weibo_writer(weibo_df):
+    '''
+    description: 将内容写进csv
+    event: 
+    param {*}
+    return {*}
+    '''    
+    weibo_df.to_csv(config.weibo_data_path)
+    print("weibo data writing : done")
 
 
 def _get_blogs(uid,headers,path):
     '''
-    description: 获取所有原创微博
+    description: 获取当前页面所有原创微博
     event: 
     param {*}
     return {*}
     '''
+    weibo_data_list=[]
     filter_mode=config.filter_type
     num_pages=1
     num_blogs=0
     
     print('start capture all original weibo of uid:' + uid)
-    while True:
+    while num_pages < 97:
         url = 'https://weibo.cn/%s/profile?filter=%s&page=%d' % (uid, filter_mode, num_pages)
         html=_get_html(url,headers)
+
+        
 
         soup=BeautifulSoup(html,'html.parser')
         blogs = soup.body.find_all(attrs={'id':re.compile(r'^M_')}, recursive=False)
         num_blogs += len(blogs)
            
         for blog in blogs:
-            month,day,time,content=_get_one_weibo(blog.attrs.get('id'),headers,blog,path)
-            _get_one_images(blog.attrs.get('id'),headers,blog,path)
+            year,month,day,time,content=_get_one_weibo(blog.attrs.get('id'),headers,blog,path)
+            weibo_data_list.append([year,month,day,time,content])
+            img_path=_get_img_path(blog.attrs.get('id'),year,month)
+            _get_one_images(blog.attrs.get('id'),headers,blog,img_path)
+            
+        
+        num_pages=num_pages+1
+    
+    weibo_df=pd.DataFrame(weibo_data_list)
+    _weibo_writer(weibo_df)
 
 
 if __name__=='__main__':
