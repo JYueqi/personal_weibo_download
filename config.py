@@ -2,7 +2,7 @@
 Author: JYQ
 Description: 
 Date: 2022-04-26 12:29:03
-LastEditTime: 2022-04-28 10:18:14
+LastEditTime: 2022-04-28 16:46:37
 FilePath: \weibo_data\config.py
 '''
 #22/4/28: 暂时不会自动获取cookies
@@ -22,3 +22,4 @@ cookies='_T_WM=9f7a2fcfa8360bc1acb8305755ed76e4; SCF=ArviQe0oBxCtBsjh3hb6eF9fOg6
 
 download_root='E:/jyq/projects/weibo_data/download'
 
+weibo_data_path='E:\\jyq\\projects\\weibo_data\\mrfz_weibo_data.csv'
