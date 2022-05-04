@@ -1,6 +1,15 @@
 # personal weibo download
 version : 1.0
+
+从14年就在用新浪微博，在微博上记录了很多日常生活，相当于日记本，和它一起度过了三分之一的人生，承载了part of me。但是22年年初微博的随机捂嘴炸号行为敲醒了我。沉默和顺从只会助长嚣张气焰，铁链挂在每位女性脖子上。
+
+***
+**GirlsHelpGirls**
+***
+
 ## usage
+这个代码是课余时间写的，参考了一些网络上的代码，仅用于保存个人原创微博。
+
 1.下载项目 git@github.com:JYueqi/personal_weibo_download.git
 
 2.修改 config.py
